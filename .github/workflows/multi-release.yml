@@ -23,30 +23,22 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # ---------- ANDROID ----------
       - name: Build Android APK
         run: flutter build apk --release
 
       - name: Build Android AAB
         run: flutter build appbundle --release
 
-      - name: Build iOS (no code signing)
-        run: flutter build ios --release --no-codesign
+      # ---------- iOS (Unsigned IPA) ----------
+      - name: Build iOS IPA (no signing)
+        run: flutter build ipa --release --no-codesign
 
-      - name: Export IPA
-        run: |
-          cd ios
-          xcodebuild -workspace Runner.xcworkspace \
-                     -scheme Runner \
-                     -archivePath build/Runner.xcarchive archive
-
-          xcodebuild -exportArchive \
-                     -archivePath build/Runner.xcarchive \
-                     -exportOptionsPlist exportOptions.plist \
-                     -exportPath build/ipa
-
+      # ---------- MACOS ----------
       - name: Build macOS
         run: flutter build macos --release
 
+      # ---------- UPLOAD ARTIFACTS ----------
       - name: Upload Apple + Android Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -54,9 +46,10 @@ jobs:
           path: |
             build/app/outputs/**/*.apk
             build/app/outputs/**/*.aab
-            build/ios/**/*.ipa
+            build/ios/ipa/*.ipa
             build/macos/Build/Products/Release/*.app
 
+  # ---------- WINDOWS ----------
   windows_build:
     name: Build Windows App
     runs-on: windows-latest
