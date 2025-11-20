@@ -1,0 +1,91 @@
+name: Flutter Multi-Platform Build
+
+on:
+  push:
+    tags:
+      - 'v*'   # Trigger on version tags like v1.0.0
+
+jobs:
+  # ------------------------------
+  # ANDROID + IOS + MACOS BUILDS
+  # ------------------------------
+  apple_android:
+    name: Build Android / iOS / macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # ---------- ANDROID ----------
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Build Android AAB
+        run: flutter build appbundle --release
+
+      # ---------- IOS ----------
+      - name: Build iOS (no code signing)
+        run: flutter build ios --release --no-codesign
+
+      - name: Export IPA
+        run: |
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace \
+                     -scheme Runner \
+                     -archivePath build/Runner.xcarchive archive
+
+          xcodebuild -exportArchive \
+                     -archivePath build/Runner.xcarchive \
+                     -exportOptionsPlist exportOptions.plist \
+                     -exportPath build/ipa
+
+      # ---------- MACOS ----------
+      - name: Build macOS
+        run: flutter build macos --release
+
+      - name: Upload Apple + Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apple-android-builds
+          path: |
+            build/app/outputs/**/*.apk
+            build/app/outputs/**/*.aab
+            build/ios/**/*.ipa
+            build/macos/Build/Products/Release/*.app
+
+  # ------------------------------
+  # WINDOWS BUILD
+  # ------------------------------
+  windows_build:
+    name: Build Windows App
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: build/windows/runner/Release/
