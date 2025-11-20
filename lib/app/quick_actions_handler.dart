@@ -17,15 +17,15 @@ class QuickActionsHandler {
       });
 
       await quickActions.setShortcutItems(<ShortcutItem>[
-      ShortcutItem(
-          type: 'add_tasks',
-          localizedTitle: 'Add New Task',
-          icon:Platform.isIOS ? 'plus' : 'add_tasks',
-        ),
+
       ShortcutItem(
           type: 'view_tasks',
           localizedTitle: 'View Tasks',
-          icon:Platform.isIOS ? 'plus' : 'view_tasks',
+          icon: 'view_task',
+        ),ShortcutItem(
+          type: 'add_task',
+          localizedTitle: 'Add Tasks',
+          icon: 'add_task',
         ),
       ]);
 
