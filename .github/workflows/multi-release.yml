@@ -3,12 +3,10 @@ name: Flutter Multi-Platform Build
 on:
   push:
     tags:
-      - 'v*'   # Trigger on version tags like v1.0.0
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
-  # ------------------------------
-  # ANDROID + IOS + MACOS BUILDS
-  # ------------------------------
   apple_android:
     name: Build Android / iOS / macOS
     runs-on: macos-latest
@@ -25,14 +23,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # ---------- ANDROID ----------
       - name: Build Android APK
         run: flutter build apk --release
 
       - name: Build Android AAB
         run: flutter build appbundle --release
 
-      # ---------- IOS ----------
       - name: Build iOS (no code signing)
         run: flutter build ios --release --no-codesign
 
@@ -48,7 +44,6 @@ jobs:
                      -exportOptionsPlist exportOptions.plist \
                      -exportPath build/ipa
 
-      # ---------- MACOS ----------
       - name: Build macOS
         run: flutter build macos --release
 
@@ -62,9 +57,6 @@ jobs:
             build/ios/**/*.ipa
             build/macos/Build/Products/Release/*.app
 
-  # ------------------------------
-  # WINDOWS BUILD
-  # ------------------------------
   windows_build:
     name: Build Windows App
     runs-on: windows-latest
